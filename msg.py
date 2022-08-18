@@ -9,11 +9,10 @@ class MSG:
         return itertools.zip_longest(player.board['1'] or [0, 0, 0], player.board['2'] or [0, 0, 0],
                                      player.board['3'] or [0, 0, 0])
 
-
     def single_display_board(self, player):
         player_cols = self.prepare_board_to_show(player)
-        print('=====================')
-        print(f'\n{player.name} board')
+        print('\n=====================')
+        print(f'{player.name} board')
         print('=====================')
         print(f'   Score   ')
         print(f' {player.score["1"]} ', f' {player.score["2"]} ', f' {player.score["3"]} ')
@@ -30,8 +29,6 @@ class MSG:
         for p in (player, opponent):
             self.single_display_board(p)
 
-
-
     @staticmethod
     def clear_console():
         os.system('clear')
@@ -39,12 +36,14 @@ class MSG:
     @staticmethod
     def dice_result(dice_n: int) -> None:
         print(f'Dice Result is ---> {dice_n}')
+        print(f'----------------------------------------')
 
     @staticmethod
     def select_correct_column_number(selected_position: str):
         print('-----------------------------------------------------------------------')
         print(f'You select {selected_position}, pleas select number between 1 and 3')
         print('-----------------------------------------------------------------------')
+
 
     @staticmethod
     def column_is_full():
@@ -54,4 +53,4 @@ class MSG:
     def player_is_your_turn(player):
         print(f'\n----------------------------------------')
         print(f'{player.name} is your turn')
-        print(f'----------------------------------------')
+

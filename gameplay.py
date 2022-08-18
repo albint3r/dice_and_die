@@ -159,6 +159,6 @@ class Game:
                 if self.is_game_end(player):
                     flag = False
                     break
-
+        # TODO reparar ganador falla por str
         winner = self.select_winner()
         print(f'Congratulation {winner.name}!!! :)')
