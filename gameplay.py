@@ -151,12 +151,12 @@ class Game:
 
     def play(self, debug=False) -> None:
         """Star game play"""
-        flag = True
+        match_on = True
         players = self.select_player_start_first()
         print(players)
 
         # Select Player start
-        while flag:
+        while match_on:
 
             for player in players:
                 self.msg.player_is_your_turn(player)
@@ -171,7 +171,7 @@ class Game:
                     # Print all the changes if this is True
                     self.msg.clear_console()
                 if self.is_game_end(player):
-                    flag = False
+                    match_on = False
                     break  # -> This break the for loop no the while loop
 
         winner, loser = self.select_winner()

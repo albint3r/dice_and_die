@@ -27,7 +27,7 @@ class MSG:
     def single_display_board(self, player, reverse: bool = False):
         player_cols = self.prepare_board_to_show(player, reverse)
         print('\n=====================')
-        print(f'{player.name} board')
+        print(f'{player.name.title()} Board')
         print('=====================')
         print(f'   Score   ')
         print(f' {player.score["1"]} ', f' {player.score["2"]} ', f' {player.score["3"]} ')
@@ -62,7 +62,7 @@ class MSG:
     @staticmethod
     def player_is_your_turn(player):
         print(f'\n----------------------------------------')
-        print(f'{player.name} is your turn')
+        print(f'{player.name.title()} is your turn')
 
     @staticmethod
     def winner_msg(winner, losser):
