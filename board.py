@@ -1,7 +1,7 @@
 # Imports
 from dataclasses import dataclass, field
 # math
-import numpy as np
+import random
 
 
 @dataclass
@@ -11,7 +11,7 @@ class Dice:
 
     def roll(self) -> None:
         """Roll the dice and add the result to the number attribute."""
-        self.number = np.random.randint(1, 7)
+        self.number = random.randint(1, 6)
 
 
 @dataclass

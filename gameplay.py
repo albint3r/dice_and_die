@@ -7,7 +7,7 @@ import random
 from typing import Tuple
 from board import GameBoard
 from msg import MSG
-from dashboard import ScoreBoard
+from scoreboard import ScoreBoard
 
 
 @dataclass
@@ -149,11 +149,10 @@ class Game:
         rando_n = random.randint(0, 1)
         return (self.p1, self.p2) if rando_n == 0 else (self.p2, self.p1)
 
-    def play(self, debug=False) -> None:
+    def play(self, echo=False) -> None:
         """Star game play"""
         match_on = True
         players = self.select_player_start_first()
-        print(players)
 
         # Select Player start
         while match_on:
@@ -167,7 +166,7 @@ class Game:
                 self.check_val_in_opponent_board(player)
                 self.add_to_board(player)
                 self.update_score(player)
-                if debug is not False:
+                if echo is not False:
                     # Print all the changes if this is True
                     self.msg.clear_console()
                 if self.is_game_end(player):

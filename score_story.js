@@ -1,1 +1,1 @@
-[]
+[{"date": "2022-08-19 16:28:30.492572", "player1": "Tobe", "player2": "Beto", "winner": "Tobe", "losser": "Beto", "w_score": 63, "l_score": 31}]
