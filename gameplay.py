@@ -2,9 +2,12 @@
 from dataclasses import dataclass, field
 # Regular expression
 import re
+import random
 # Project Import
+from typing import Tuple
 from board import GameBoard
 from msg import MSG
+from dashboard import ScoreBoard
 
 
 @dataclass
@@ -14,6 +17,7 @@ class Game:
     p2: GameBoard = field(default_factory=GameBoard)
     msg: MSG = field(default_factory=MSG)
     selected_position: str = None
+    scoreboard: ScoreBoard = field(default_factory=ScoreBoard)
 
     def __post_init__(self):
         self.set_players_names()
@@ -55,7 +59,7 @@ class Game:
         PATTERN = '[0-3]'
         while True:
             self.selected_position = input(f'Select the Column to put the number: ')
-            if re.search(PATTERN, self.selected_position):
+            if bool(re.search(PATTERN, self.selected_position)) and int(self.selected_position) < 4:
                 if player.is_full(self.selected_position):
                     self.msg.column_is_full()
                 else:
@@ -97,22 +101,18 @@ class Game:
         """
         player.add(self.selected_position, player.dice.number)
 
-    def show_current_boards(self, player: GameBoard) -> None:
+    def show_current_boards(self) -> None:
         """Display the Representation of the boar in the terminal
-
-        Parameters
-        ----------
-        player: GameBoard :
-            Is the GameBoard object or Player
 
         Returns
         -------
         None
         """
-        other_player = {self.p1: self.p2, self.p2: self.p1}.get(player)
-        self.msg.display_board(player, other_player)
 
-
+        # Players 1 and 2
+        player1 = self.p1
+        player2 = self.p2
+        self.msg.display_board(player1, player2)
 
     def update_score(self, player: GameBoard) -> None:
         """Update the score of the column and the total
@@ -129,19 +129,31 @@ class Game:
         player.calculate_col_score(self.selected_position)
         player.calculate_total_score()
 
-    def select_winner(self) -> GameBoard | str:
+    def select_winner(self) -> tuple[GameBoard, GameBoard] | tuple[str, str]:
         """Select the winner of the game by the high score."""
         if self.p1.total_score > self.p2.total_score:
-            return self.p1
-        elif self.p2.total_score > self.p2.total_score:
-            return self.p2
+            # Player 1 Win the game
+            self.p1.winner = True
+            self.p2.winner = False
+            return self.p1, self.p2
+        elif self.p2.total_score > self.p1.total_score:
+            # Player 2 win the game
+            self.p2.winner = True
+            self.p1.winner = False
+            return self.p2, self.p1
         else:
-            return 'Tie'
+            return 'Nobody win', 'You Guys'
 
-    def play(self) -> None:
+    def select_player_start_first(self):
+        """Select a random number if is zero player 1 start, but if is two player 2 start """
+        rando_n = random.randint(0, 1)
+        return (self.p1, self.p2) if rando_n == 0 else (self.p2, self.p1)
+
+    def play(self, debug=False) -> None:
         """Star game play"""
         flag = True
-        players = (self.p1, self.p2)
+        players = self.select_player_start_first()
+        print(players)
 
         # Select Player start
         while flag:
@@ -150,15 +162,21 @@ class Game:
                 self.msg.player_is_your_turn(player)
                 player.roll_dice()
                 self.msg.dice_result(player.dice.number)
-                self.show_current_boards(player)
+                self.show_current_boards()
                 self.select_dice_position(player)
                 self.check_val_in_opponent_board(player)
                 self.add_to_board(player)
                 self.update_score(player)
-                self.msg.clear_console()
+                if debug is not False:
+                    # Print all the changes if this is True
+                    self.msg.clear_console()
                 if self.is_game_end(player):
                     flag = False
-                    break
-        # TODO reparar ganador falla por str
-        winner = self.select_winner()
-        print(f'Congratulation {winner.name}!!! :)')
+                    break  # -> This break the for loop no the while loop
+
+        winner, loser = self.select_winner()
+        try:
+            self.scoreboard.save_match_result(self.p1, self.p2)
+            self.msg.winner_msg(winner, loser)
+        except AttributeError:
+            print('This game wont be saved because is a tie')

@@ -3,7 +3,7 @@ from gameplay import Game
 
 def play():
     game = Game()
-    game.play()
+    game.play(True)
 
 
 if __name__ == '__main__':

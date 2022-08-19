@@ -21,7 +21,8 @@ class GameBoard:
     dice: Dice = field(default_factory=Dice)
     score: dict = field(default_factory=dict)
     total_score: int = 0
-    name:str = None
+    name: str = None
+    winner: bool = None
 
     def __post_init__(self):
         self.create_new_board()
@@ -153,3 +154,4 @@ class GameBoard:
     def is_grid_full(self):
         """Check if the grid is full. If is true the game is ended"""
         return sum([len(col) for col in self.board.values()]) == 9
+
