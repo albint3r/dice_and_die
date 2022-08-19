@@ -4,10 +4,9 @@ from dataclasses import dataclass, field
 import re
 import random
 # Project Import
-from typing import Tuple
-from board import GameBoard
-from msg import MSG
-from scoreboard import ScoreBoard
+from game.board import GameBoard
+from game.msg import MSG
+from game.scoreboard import ScoreBoard
 
 
 @dataclass

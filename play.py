@@ -1,4 +1,4 @@
-from gameplay import Game
+from game.gameplay import Game
 
 
 def play():
