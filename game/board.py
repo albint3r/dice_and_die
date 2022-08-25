@@ -14,6 +14,7 @@ class Dice:
     is_num = bool = False
     number_surf = None
     number_rect = None
+    shadow_number_rect = None
 
     def roll(self) -> None:
         """Roll the dice and add the result to the number attribute.
@@ -31,17 +32,22 @@ class Dice:
         dice_rect = font.render(f'{self.number}', True, (0, 0, 0))
         # Create Dice Square
         self.number_rect = pygame.Rect((0, 0), (100, 100))
+        self.shadow_number_rect = pygame.Rect((0, 0), (100, 100))
         # This help to use the mid-top of the object to align surf.
         if turn == 0:  # Player1
             self.number_rect.midtop = (1000, 200)
-            num_loc = (985, 225)
+            self.shadow_number_rect.midtop = (980, 210)
+            number_dice_coordinates = (985, 225)
         elif turn == 1:  # Player2
             self.number_rect.midtop = (200, 700)
-            num_loc = (185, 725)
+            self.shadow_number_rect.midtop = (180, 710)
+            number_dice_coordinates = (185, 725)
 
         if blit:
+            pygame.draw.rect(screen, 'Black', self.shadow_number_rect)
             pygame.draw.rect(screen, 'White', self.number_rect)
-            screen.blit(dice_rect, num_loc)
+            # Display Number
+            screen.blit(dice_rect, number_dice_coordinates)
 
 
 @dataclass
