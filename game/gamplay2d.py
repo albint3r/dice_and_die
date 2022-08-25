@@ -1,7 +1,6 @@
 # Imports
-# Regular expression
-import re
 import pygame
+import time
 # Project Import
 from game.board import GameBoard
 from game.scoreboard import ScoreBoard
@@ -29,12 +28,43 @@ class Game2D(_GameAbstractBase):
         self.fps_clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 30)
         pygame.display.set_caption('Dice And Die Classic')
-        self.p1.create_d2_board()
-        self.p2.create_d2_board(False)
+        self.p1.create_d2_board(is_player1=True)
+        self.p2.create_d2_board(is_player1=False)
+        self.p1.create_slash_destroy_img(is_player1=True)
+        self.p2.create_slash_destroy_img(is_player1=False)
 
     def set_players_names(self):
         """Set the names of the player"""
         pass
+
+    def check_val_in_opponent_board(self, player: GameBoard, sound_effect=False) -> None:
+        """Check if the selection of the current player is in the Opponent player. If is true, it will
+        remove all the values equal of the dice result.
+
+        Parameters
+        ----------
+        player: GameBoard :
+            Is the GameBoard object or Player
+
+
+        Returns
+        -------
+        None
+        """
+        other_player = {self.p1: self.p2, self.p2: self.p1}.get(player)
+        if other_player.count_existences(self.selected_position, player.dice.number) > 0:
+            if sound_effect:
+                self.destroy_dice_effect(other_player, self.selected_position, player.dice.number)
+            other_player.remove(self.selected_position, player.dice.number)
+            self.update_score(other_player)
+
+    def destroy_dice_effect(self, other_player, col_number, dice_number) -> None:
+        """Play destroy dice sound N times, this depends on the number of dices destroyed."""
+        sound = pygame.mixer.Sound(other_player.dice.destroy_dices_sound)
+        for i in range(other_player.count_existences(col_number, dice_number)):
+            self.screen.blit(other_player.slash_surf, other_player.slash_rect)
+            pygame.mixer.Sound.play(sound)
+            time.sleep(.4)
 
     def create_mid_line_div(self):
         """Create a middle line division"""
@@ -110,7 +140,7 @@ class Game2D(_GameAbstractBase):
         self.screen.blit(total_score_p1, (50, 10))
         self.screen.blit(total_score_p2, (1000, 10))
 
-    def show_current_boards(self, zip_grid, blit=False, player1=True) -> None:
+    def show_current_boards(self, zip_grid, blit=False, is_player1=True) -> None:
         """Display the Representation of the boar in the terminal
 
         Returns
@@ -123,7 +153,7 @@ class Game2D(_GameAbstractBase):
         board_grid = [font.render(f'{a}          {b}           {c}', True, (255, 255, 255)) for a, b, c, d in zip_grid]
 
         if blit:
-            if player1:
+            if is_player1:
                 row1, row2, row3 = 150, 245, 345
                 self.screen.blit(board_grid[0], (495, row1))
                 self.screen.blit(board_grid[1], (495, row2))
@@ -182,18 +212,18 @@ class Game2D(_GameAbstractBase):
             # If dice image exist display value
             if self.p1.dice.number_rect is not None:
                 if self.p1.is_turn:  # Turn player 1
-                    self.p1.create_arrow_turn_indicator(self.screen, player1=True)
+                    self.p1.create_arrow_turn_indicator(self.screen, is_player1=True)
 
                 self.p1.dice.create_dice_img(self.screen, turn=0, blit=True)
                 zip_grid = self.p1.prepare_board_to_show(self.p1, reverse=True)
-                self.show_current_boards(zip_grid, blit=True, player1=True)
+                self.show_current_boards(zip_grid, blit=True, is_player1=True)
             if self.p2.dice.number_rect is not None:  # Turn player 2
                 if self.p2.is_turn:
-                    self.p2.create_arrow_turn_indicator(self.screen, player1=False)
+                    self.p2.create_arrow_turn_indicator(self.screen, is_player1=False)
 
                 self.p2.dice.create_dice_img(self.screen, turn=1, blit=True)
                 zip_grid = self.p2.prepare_board_to_show(self.p2, reverse=False)
-                self.show_current_boards(zip_grid, blit=True, player1=False)
+                self.show_current_boards(zip_grid, blit=True, is_player1=False)
 
             # Create a dice souffle effect, this would be stopped until the player press space.
             self.show_souffle_dice_effect()
@@ -254,4 +284,3 @@ class Game2D(_GameAbstractBase):
 
         except AttributeError:
             print('This game wont be saved because is a tie')
-

@@ -75,6 +75,8 @@ class GameBoard:
     winner: bool = None
     board_surf = None
     board_rect = None
+    slash_surf = None
+    slash_rect = None
     is_turn = False
 
     def __post_init__(self):
@@ -111,6 +113,24 @@ class GameBoard:
             self.board_rect = self.board_surf.get_rect(midtop=(600, 100))
         else:
             self.board_rect = self.board_surf.get_rect(midtop=(600, 600))
+
+    def create_arrow_turn_indicator(self, screen, is_player1=False):
+        """Create an arrow to display in the Dashboard to indicate is the turn of the player"""
+        if is_player1:
+            pygame.draw.polygon(surface=screen, color=(255, 0, 0), points=[(1000, 350), (950, 400), (1050, 400)])
+        else:
+            pygame.draw.polygon(surface=screen, color=(255, 0, 0), points=[(200, 850), (150, 900), (250, 900)])
+
+    def create_slash_destroy_img(self, is_player1: bool = True):
+        """Create the slash image that would be displayed when the player destroy the dices of the opponent"""
+        img_file = os.path.join('game', 'statics', 'board', 'slash_dice_destroy.png')
+        picture = pygame.image.load(img_file)
+        self.slash_surf = pygame.transform.scale(picture, (600, 600))
+        if is_player1:
+            self.slash_rect = self.slash_surf.get_rect(midtop=(600, 50))
+
+        else:
+            self.slash_rect = self.slash_surf.get_rect(midtop=(600, 500))
 
     def create_scores(self) -> None:
         """Create a new empty board game to play"""
@@ -239,9 +259,3 @@ class GameBoard:
 
         return zip_grid
 
-    def create_arrow_turn_indicator(self, screen, player1=False):
-        """Create an arrow to display in the Dashboard to indicate is the turn of the player"""
-        if player1:
-            pygame.draw.polygon(surface=screen, color=(255, 0, 0), points=[(1000, 350), (950, 400), (1050, 400)])
-        else:
-            pygame.draw.polygon(surface=screen, color=(255, 0, 0), points=[(200, 850), (150, 900), (250, 900)])
