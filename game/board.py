@@ -15,18 +15,31 @@ class Dice:
     number_surf = None
     number_rect = None
     shadow_number_rect = None
+    souffle_dice_sound = None
+    throw_dice_sound = None
+    destroy_dices_sound = None
 
-    def roll(self) -> None:
+    def __post_init__(self):
+        self.set_dice_sounds()
+
+    def roll(self, fake_roll=False) -> None:
         """Roll the dice and add the result to the number attribute.
         It fills the temp_num, thi is used to control the game flow.
         """
         self.number = random.randint(1, 6)
-        self.is_num = True
+        if not fake_roll:
+            self.is_num = True
+
+    def set_dice_sounds(self):
+        self.souffle_dice_sound = os.path.join('game', 'sounds', 'dice', 'dice_shaking_effect.mp3')
+        self.throw_dice_sound = os.path.join('game', 'sounds', 'dice', 'throw_dice_effect.mp3')
+        self.destroy_dices_sound = os.path.join('game', 'sounds', 'dice', 'destroy_dices_effect.mp3')
 
     def get_dice_img(self) -> str:
         return os.path.join('game', 'statics', 'dice', f'{self.number}.png')
 
     def create_dice_img(self, screen, turn, blit=False):
+        """Create the dice image of the player in the board game"""
         # Create Font
         font = pygame.font.Font(None, 80)
         dice_rect = font.render(f'{self.number}', True, (0, 0, 0))
@@ -103,9 +116,9 @@ class GameBoard:
         """Create a new empty board game to play"""
         self.score = {'1': 0, '2': 0, '3': 0}
 
-    def roll_dice(self):
+    def roll_dice(self, fake_roll=False):
         """Roll a dice and put the result inside the target colum."""
-        return self.dice.roll()
+        return self.dice.roll(fake_roll)
 
     def add(self, col_number: str, dice_number: int) -> None:
         """Add Dice Result to a Column Board

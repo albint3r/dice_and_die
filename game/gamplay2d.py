@@ -24,7 +24,9 @@ class Game2D(_GameAbstractBase):
         self.total_points_game = 0
 
         pygame.init()
+        pygame.mixer.init()
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.fps_clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 30)
         pygame.display.set_caption('Dice And Die Classic')
         self.p1.create_d2_board()
@@ -148,6 +150,19 @@ class Game2D(_GameAbstractBase):
         self.set_calculate_percentage_of_total_score_players()
         self.scoreboard.create_sentiment_score_bar(self.p1, self.p2, self.screen)
 
+    def show_souffle_dice_effect(self):
+        if not self.p1.dice.is_num and self.p1.is_turn:
+            # sound = pygame.mixer.Sound(self.p1.dice.souffle_dice_sound)
+            # pygame.mixer.Sound.play(sound)
+            self.p1.roll_dice(True)
+            self.p1.dice.create_dice_img(self.screen, turn=0, blit=True)
+
+        if not self.p2.dice.is_num and self.p2.is_turn:
+            # sound = pygame.mixer.Sound(self.p2.dice.souffle_dice_sound)
+            # pygame.mixer.Sound.play(sound)
+            self.p2.roll_dice(True)
+            self.p2.dice.create_dice_img(self.screen, turn=1, blit=True)
+
     def play(self, echo=False) -> None:
         """Star game play"""
         game_on = True
@@ -157,32 +172,32 @@ class Game2D(_GameAbstractBase):
 
         while game_on:
             self.screen.fill(self.BACKGROUND_COLOR)
-            self.create_mid_line_div()
+            self.create_mid_line_div()  # Midline
+            # Players board
             self.screen.blit(self.p1.board_surf, self.p1.board_rect)
             self.screen.blit(self.p2.board_surf, self.p2.board_rect)
+            # Create Score Box
             self.scoreboard.create_score_box(self.screen)
-            # Todo New working area
             self.show_bar_score_points()
-            #############################################
             # If dice image exist display value
             if self.p1.dice.number_rect is not None:
-
                 if self.p1.is_turn:  # Turn player 1
-                    self.p1.create_arrow_turn_indicator(self.screen, True)
+                    self.p1.create_arrow_turn_indicator(self.screen, player1=True)
 
-                self.p1.dice.create_dice_img(self.screen, 0, True)
-                zip_grid = self.p1.prepare_board_to_show(self.p1, True)
-                self.show_current_boards(zip_grid, True)
+                self.p1.dice.create_dice_img(self.screen, turn=0, blit=True)
+                zip_grid = self.p1.prepare_board_to_show(self.p1, reverse=True)
+                self.show_current_boards(zip_grid, blit=True, player1=True)
             if self.p2.dice.number_rect is not None:  # Turn player 2
-
                 if self.p2.is_turn:
-                    self.p2.create_arrow_turn_indicator(self.screen, False)
+                    self.p2.create_arrow_turn_indicator(self.screen, player1=False)
 
-                self.p2.dice.create_dice_img(self.screen, 1, True)
-                zip_grid = self.p2.prepare_board_to_show(self.p2, False)
-                self.show_current_boards(zip_grid, True, player1=False)
+                self.p2.dice.create_dice_img(self.screen, turn=1, blit=True)
+                zip_grid = self.p2.prepare_board_to_show(self.p2, reverse=False)
+                self.show_current_boards(zip_grid, blit=True, player1=False)
 
-            # 1- Event
+            # Create a dice souffle effect, this would be stopped until the player press space.
+            self.show_souffle_dice_effect()
+
             for event in pygame.event.get():
                 # print(event)
                 if event.type == pygame.QUIT:
@@ -191,18 +206,15 @@ class Game2D(_GameAbstractBase):
                 # Player roll dice
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE and not players[turn].dice.is_num:
+                        sound = pygame.mixer.Sound(players[turn].dice.throw_dice_sound)
+                        pygame.mixer.Sound.play(sound)
                         players[turn].roll_dice()
                         players[turn].dice.create_dice_img(self.screen, turn, False)
-                        print(f'Turno {turn}')
-                        print(f'is Turno {players[turn].is_turn}')
-                        print(players[turn].name)
-                        print(players[turn].dice.number)
-                        print('Roll the dice')
 
-                    # Player Select Column
+                    # Player Select Column Dice Position
                     self.select_dice_position(players[turn], event)
                     if self.selected_position is not None:
-                        self.check_val_in_opponent_board(players[turn])
+                        self.check_val_in_opponent_board(players[turn], sound_effect=True)
                         self.add_to_board(players[turn])
                         # Update the Grid Values of the Game
                         zip_grid = players[turn].prepare_board_to_show(players[turn], False)
@@ -230,6 +242,7 @@ class Game2D(_GameAbstractBase):
             self.show_players_names()
             self.show_current_scores()
             pygame.display.update()
+            self.fps_clock.tick(self.FPS)
 
         pygame.quit()
 

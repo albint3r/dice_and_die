@@ -53,9 +53,8 @@ class ScoreBoard:
 
         if player1.total_score and player2.total_score:
             # If the two players have total score it would display the sentiment bar
-            per_box_points_p1 = round(player1.per_total_score * self.POINTS_BOX_SIZE[
-                0])  # Todo Could be a good idea create a function for this calculus
-            point_bar_rect = pygame.Rect(sentiment_bar_score_coordinate, (per_box_points_p1, 30))  # x, y and Width, height
+            per_box_points_p1 = round(player1.per_total_score * self.POINTS_BOX_SIZE[0])  # Todo Could be a good idea create a function for this calculus
+            point_bar_rect = pygame.Rect(sentiment_bar_score_coordinate, (per_box_points_p1, 30))
             pygame.draw.rect(screen, 'Green', point_bar_rect)
         else:
             # Create half bar to display until points arrive to create calculation.

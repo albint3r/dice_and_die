@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 # Regular expression
 import random
+import pygame
+import time
 # Project Import
 from game.board import GameBoard
 from game.msg import MSG
@@ -34,7 +36,14 @@ class _GameAbstractBase(ABC):
 
         return player.is_grid_full()
 
-    def check_val_in_opponent_board(self, player: GameBoard) -> None:
+    def play_destroy_dice_sound(self, other_player, col_number, dice_number) -> None:
+        """Play destroy dice sound N times, this depends on the number of dices destroyed."""
+        sound = pygame.mixer.Sound(other_player.dice.destroy_dices_sound)
+        for i in range(other_player.count_existences(col_number, dice_number)):
+            pygame.mixer.Sound.play(sound)
+            time.sleep(.3)
+
+    def check_val_in_opponent_board(self, player: GameBoard, sound_effect = False) -> None:
         """Check if the selection of the current player is in the Opponent player. If is true, it will
         remove all the values equal of the dice result.
 
@@ -50,6 +59,8 @@ class _GameAbstractBase(ABC):
         """
         other_player = {self.p1: self.p2, self.p2: self.p1}.get(player)
         if other_player.count_existences(self.selected_position, player.dice.number) > 0:
+            if sound_effect:
+                self.play_destroy_dice_sound(other_player, self.selected_position, player.dice.number)
             other_player.remove(self.selected_position, player.dice.number)
             self.update_score(other_player)
 
