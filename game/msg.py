@@ -27,7 +27,7 @@ class MSG:
     def single_display_board(self, player, reverse: bool = False):
         player_cols = self.prepare_board_to_show(player, reverse)
         print('\n=====================')
-        print(f'{player.name.title()} Board')
+        print(f'{player.name} Board')
         print('=====================')
         print(f'   Score   ')
         print(f' {player.score["1"]} ', f' {player.score["2"]} ', f' {player.score["3"]} ')
@@ -47,7 +47,7 @@ class MSG:
     @staticmethod
     def dice_result(dice_n: int) -> None:
         print(f'Dice Result is ---> {dice_n}')
-        print(f'----------------------------------------')
+        print(f'----------------------------------------\n')
 
     @staticmethod
     def select_correct_column_number(selected_position: str):
@@ -62,13 +62,13 @@ class MSG:
     @staticmethod
     def player_is_your_turn(player):
         print(f'\n----------------------------------------')
-        print(f'{player.name.title()} is your turn')
+        print(f'{player.name} is your turn')
 
     @staticmethod
     def winner_msg(winner, losser):
         print('\n*******************************************')
         print('Game Result:')
         print('*******************************************\n')
-        print(f'\nCongratulation {winner.name.title()} you win with [{winner.total_score}] points!!! :)')
-        print(f'{losser.name.title()} losse with [{losser.total_score}] points. Losers  go home, bye, bye! ')
+        print(f'\nCongratulation {winner.name} you win with [{winner.total_score}] points!!! :)')
+        print(f'{losser.name} losse with [{losser.total_score}] points. Losers  go home, bye, bye! ')
         print(f'Game Over!')

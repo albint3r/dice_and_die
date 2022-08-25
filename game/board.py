@@ -1,17 +1,47 @@
 # Imports
+import pygame
 from dataclasses import dataclass, field
 # math
 import random
+import os
+import itertools
 
 
 @dataclass
 class Dice:
     """Represent the Dice of the Game"""
     number: int = None
+    is_num = bool = False
+    number_surf = None
+    number_rect = None
 
     def roll(self) -> None:
-        """Roll the dice and add the result to the number attribute."""
+        """Roll the dice and add the result to the number attribute.
+        It fills the temp_num, thi is used to control the game flow.
+        """
         self.number = random.randint(1, 6)
+        self.is_num = True
+
+    def get_dice_img(self) -> str:
+        return os.path.join('game', 'statics', 'dice', f'{self.number}.png')
+
+    def create_dice_img(self, screen, turn, blit=False):
+        # Create Font
+        font = pygame.font.Font(None, 80)
+        dice_rect = font.render(f'{self.number}', True, (0, 0, 0))
+        # Create Dice Square
+        self.number_rect = pygame.Rect((0, 0), (100, 100))
+        # This help to use the mid-top of the object to align surf.
+        if turn == 0:  # Player1
+            self.number_rect.midtop = (1000, 200)
+            num_loc = (985, 225)
+        elif turn == 1:  # Player2
+            self.number_rect.midtop = (200, 700)
+            num_loc = (185, 725)
+
+        if blit:
+            pygame.draw.rect(screen, 'White', self.number_rect)
+            screen.blit(dice_rect, num_loc)
 
 
 @dataclass
@@ -21,8 +51,12 @@ class GameBoard:
     dice: Dice = field(default_factory=Dice)
     score: dict = field(default_factory=dict)
     total_score: int = 0
+    per_total_score: float = 0
     name: str = None
     winner: bool = None
+    board_surf = None
+    board_rect = None
+    is_turn = False
 
     def __post_init__(self):
         self.create_new_board()
@@ -43,11 +77,21 @@ class GameBoard:
         -------
         None
         """
-        self.name = name
+        self.name = name.title()
 
     def create_new_board(self) -> None:
         """Create a new empty board game to play"""
         self.board = {'1': list(), '2': list(), '3': list()}
+
+    def get_board_img(self) -> str:
+        return os.path.join('game', 'statics', 'board', 'board_grid.png')
+
+    def create_d2_board(self, is_player1=True):
+        self.board_surf = pygame.image.load(self.get_board_img())
+        if is_player1:
+            self.board_rect = self.board_surf.get_rect(midtop=(600, 100))
+        else:
+            self.board_rect = self.board_surf.get_rect(midtop=(600, 600))
 
     def create_scores(self) -> None:
         """Create a new empty board game to play"""
@@ -71,7 +115,7 @@ class GameBoard:
         -------
         None
         """
-        if not self.is_full(col_number):
+        if not self.is_col_full(col_number):
             self.board[col_number].append(dice_number)
 
     def remove(self, col_number: str, dice_number: int) -> None:
@@ -92,10 +136,9 @@ class GameBoard:
 
         for i in range(total_existences):
             self.board[col_number].remove(dice_number)
-            print("Dammmm Son! That's nasty")
 
     def count_existences(self, col_number: str, dice_number: int) -> int:
-        """Check if the number exist in the column
+        """Count how many occurrences of the number exist
 
         Parameters
         ----------
@@ -110,7 +153,7 @@ class GameBoard:
         """
         return self.board[col_number].count(dice_number)
 
-    def is_full(self, col_number: str) -> bool:
+    def is_col_full(self, col_number: str) -> bool:
         """Check if the Column is full. Exist 3 values inside
 
         Parameters
@@ -155,3 +198,31 @@ class GameBoard:
         """Check if the grid is full. If is true the game is ended"""
         return sum([len(col) for col in self.board.values()]) == 9
 
+    @staticmethod
+    def prepare_board_to_show(player, reverse: bool = False) -> zip:
+        zero_lst = [0, 0, 0]
+
+        zip_grid = itertools.zip_longest(player.board['1'], player.board['2'],
+                                         player.board['3'],
+                                         zero_lst  # This additional Column is hidden, It works to display the 3 row.
+                                         , fillvalue=0)
+
+        if reverse:
+            col1, col2, col3, col4 = [], [], [], []
+
+            for a, b, c, d, in zip_grid:
+                col1.append(a)
+                col2.append(b)
+                col3.append(c)
+                col4.append(d)
+
+            zip_grid = zip(col1[::-1], col2[::-1], col3[::-1], col4[::-1])
+
+        return zip_grid
+
+    def create_arrow_turn_indicator(self, screen, player1=False):
+        """Create an arrow to display in the Dashboard to indicate is the turn of the player"""
+        if player1:
+            pygame.draw.polygon(surface=screen, color=(255, 0, 0), points=[(1000, 350), (950, 400), (1050, 400)])
+        else:
+            pygame.draw.polygon(surface=screen, color=(255, 0, 0), points=[(200, 850), (150, 900), (250, 900)])
