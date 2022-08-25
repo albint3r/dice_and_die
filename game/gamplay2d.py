@@ -95,8 +95,8 @@ class Game2D(_GameAbstractBase):
 
     def show_players_total_scores(self):
         font = pygame.font.Font(None, 50)
-        total_score_p1 = font.render(f'{self.p1.total_score}', True, (0, 0, 0))
-        total_score_p2 = font.render(f'{self.p2.total_score}', True, (0, 0, 0))
+        total_score_p1 = font.render(f'{self.p1.total_score}', True, 'Black')
+        total_score_p2 = font.render(f'{self.p2.total_score}', True, 'Black')
         self.screen.blit(total_score_p1, (435, 10))
         self.screen.blit(total_score_p2, (735, 10))
 
@@ -136,7 +136,7 @@ class Game2D(_GameAbstractBase):
         """Get the sum of the score of the players 1 and 2"""
         self.total_points_game = self.p1.total_score + self.p2.total_score
 
-    def calculate_percentage_of_total_score_players(self) -> tuple:
+    def set_calculate_percentage_of_total_score_players(self) -> None:
         """This function calculate the percentage of p1 and p2 from the total points game """
         if self.p1.total_score:
             self.p1.per_total_score = self.p1.total_score / self.total_points_game
@@ -145,8 +145,7 @@ class Game2D(_GameAbstractBase):
 
     def show_bar_score_points(self):
         self.set_total_points()
-        self.calculate_percentage_of_total_score_players()
-
+        self.set_calculate_percentage_of_total_score_players()
         self.scoreboard.create_sentiment_score_bar(self.p1, self.p2, self.screen)
 
     def play(self, echo=False) -> None:
