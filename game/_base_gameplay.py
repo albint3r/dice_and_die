@@ -50,8 +50,6 @@ class _GameAbstractBase(ABC):
         """
         other_player = {self.p1: self.p2, self.p2: self.p1}.get(player)
         if other_player.count_existences(self.selected_position, player.dice.number) > 0:
-            if sound_effect:
-                self.play_destroy_dice_sound(other_player, self.selected_position, player.dice.number)
             other_player.remove(self.selected_position, player.dice.number)
             self.update_score(other_player)
 

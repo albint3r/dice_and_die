@@ -279,7 +279,7 @@ class Game2D(_GameAbstractBase):
         winner, loser = self.select_winner()
 
         try:
-            self.scoreboard.save_match_result(self.p1, self.p2)
+            self.scoreboard.save_match_result(self.p1, self.p2, self.turn_n)
             self.msg.winner_msg(winner, loser)
 
         except AttributeError:

@@ -9,6 +9,10 @@ from game._base_gameplay import _GameAbstractBase
 class GameTerminal(_GameAbstractBase):
     """ """
 
+    def __init__(self):
+        super().__init__()
+        self.turn_n = 1
+
     def select_dice_position(self, player: GameBoard) -> None:
         """Select the Column position to put the dice result (1, 2 or 3)
 
@@ -75,13 +79,15 @@ class GameTerminal(_GameAbstractBase):
                 if not echo:
                     # Print all the changes if this is True
                     self.msg.clear_console()
+                # Count Turns
+                self.turn_n += 1
                 if self.is_game_end(player):
                     match_on = False
                     break  # -> This break the for loop no the while loop
 
         winner, loser = self.select_winner()
         try:
-            self.scoreboard.save_match_result(self.p1, self.p2)
+            self.scoreboard.save_match_result(self.p1, self.p2, self.turn_n)
             self.msg.winner_msg(winner, loser)
         except AttributeError:
             print('This game wont be saved because is a tie')
