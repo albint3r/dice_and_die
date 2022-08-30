@@ -10,57 +10,81 @@ import itertools
 @dataclass
 class Dice:
     """Represent the Dice of the Game"""
+
+    _max_dice_numbers: int = 6
     number: int = None
-    is_num = bool = False
-    number_surf = None
-    number_rect = None
-    shadow_number_rect = None
-    souffle_dice_sound = None
-    throw_dice_sound = None
-    destroy_dices_sound = None
+    size: tuple[int, int] = (100, 100)
+    is_num: bool = False
+    number_surf: pygame.Surface = None
+    number_rect: pygame.Rect = None
+    shadow_rect: pygame.Rect = None
+    souffle_dice_sound: str = None
+    throw_dice_sound: str = None
+    destroy_dices_sound: str = None
 
     def __post_init__(self):
         self.set_dice_sounds()
 
-    def roll(self, fake_roll=False) -> None:
+    def roll(self, fake_roll: bool = False) -> None:
         """Roll the dice and add the result to the number attribute.
-        It fills the temp_num, thi is used to control the game flow.
+        Also fill the 'fake_roll' attribute tha works with the 2D version game, to make the shuffle dice effect.
+
+        Parameters:
+        -------------
+        fake_roll: bool
+            This switch activate the Fake roll effect when the user is going to throw the dice.
+            If this is False it would save the dice roll result, otherwise only would help to print result in the
+            game.
+            (Default = False)
         """
-        self.number = random.randint(1, 6)
+        self.number = random.randint(1, self._max_dice_numbers)
         if not fake_roll:
             self.is_num = True
 
-    def set_dice_sounds(self):
+    def set_dice_sounds(self) -> None:
+        """Add the directory path to the variables that handle the Dice Sound"""
         self.souffle_dice_sound = os.path.join('game', 'sounds', 'dice', 'dice_shaking_effect.mp3')
         self.throw_dice_sound = os.path.join('game', 'sounds', 'dice', 'throw_dice_effect.mp3')
         self.destroy_dices_sound = os.path.join('game', 'sounds', 'dice', 'destroy_dices_effect.mp3')
 
-    def get_dice_img(self) -> str:
-        return os.path.join('game', 'statics', 'dice', f'{self.number}.png')
+    def create_dice_img(self, screen: pygame.Surface, turn: int, blit: bool = False) -> None:
+        """Create the dice image of the player in the board game. This Method creates two objects the square of the
+        dice and the number inside the dice.
 
-    def create_dice_img(self, screen, turn, blit=False):
-        """Create the dice image of the player in the board game"""
+        Parameters:
+        -------------
+        screen: pygame.Surface:
+            Is the game main display screen object. This helps to display the square and the number of the dice.
+
+        turn: int:
+            This number represent the players turn. If is 0 is turn of the player1 elif 1 is turn of the player2
+
+        blit: bool
+            If this is true it would display the dice new number.
+            (Default: False)
+        """
+
         # Create Font
         font = pygame.font.Font(None, 80)
-        dice_rect = font.render(f'{self.number}', True, (0, 0, 0))
+        self.number_surf = font.render(f'{self.number}', True, 'Black')
         # Create Dice Square
-        self.number_rect = pygame.Rect((0, 0), (100, 100))
-        self.shadow_number_rect = pygame.Rect((0, 0), (100, 100))
-        # This help to use the mid-top of the object to align surf.
+        self.number_rect = pygame.Rect((0, 0), self.size)  # 100 x 100 square
+        self.shadow_rect = pygame.Rect((0, 0), self.size)
+        # Select in the MIDTOP coordinates of the number and shadow rect.
         if turn == 0:  # Player1
             self.number_rect.midtop = (1000, 200)
-            self.shadow_number_rect.midtop = (980, 210)
-            number_dice_coordinates = (985, 225)
+            self.shadow_rect.midtop = (980, 210)
+            dice_num_coordinates = (985, 225)
         elif turn == 1:  # Player2
             self.number_rect.midtop = (200, 700)
-            self.shadow_number_rect.midtop = (180, 710)
-            number_dice_coordinates = (185, 725)
+            self.shadow_rect.midtop = (180, 710)
+            dice_num_coordinates = (185, 725)
 
-        if blit:
-            pygame.draw.rect(screen, 'Black', self.shadow_number_rect)
+        if blit:  # Display the new dice number
+            pygame.draw.rect(screen, 'Black', self.shadow_rect)
             pygame.draw.rect(screen, 'White', self.number_rect)
             # Display Number
-            screen.blit(dice_rect, number_dice_coordinates)
+            screen.blit(self.number_surf, dice_num_coordinates)
 
 
 @dataclass
@@ -73,11 +97,11 @@ class GameBoard:
     per_total_score: float = 0
     name: str = None
     winner: bool = None
-    board_surf = None
-    board_rect = None
-    slash_surf = None
-    slash_rect = None
-    is_turn = False
+    board_surf: pygame.Surface = None
+    board_rect: pygame.Rect = None
+    slash_surf: pygame.Surface = None
+    slash_rect: pygame.Rect = None
+    is_turn: bool = False
 
     def __post_init__(self):
         self.create_new_board()
@@ -258,4 +282,3 @@ class GameBoard:
             zip_grid = zip(col1[::-1], col2[::-1], col3[::-1], col4[::-1])
 
         return zip_grid
-
